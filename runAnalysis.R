@@ -86,16 +86,16 @@ for (i in 1:length(columns))
 # Update MergedDataSet with new descriptive column names
 colnames(MergedDataSet) <- columns;
 
+# Remove activityType column
+MergedDataSet <- MergedDataSet[,names(MergedDataSet) != 'activityType'];
+
 ###### 5. Creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-# Creates a new table removing the activityType column
-MergedDataActivityRemoved <- MergedDataSet[,names(MergedDataSet) != 'activityType'];
-
 # Averaging each activity and each subject as Tidy Data
-tidyData <- aggregate(MergedDataActivityRemoved[,names(MergedDataActivityRemoved) 
+tidyData <- aggregate(MergedDataSet[,names(MergedDataSet) 
                 != c('activityId','subjectId')],by=list
-                        (activityId=MergedDataActivityRemoved$activityId,
-                                subjectId = MergedDataActivityRemoved$subjectId),mean);
+                        (activityId=MergedDataSet$activityId,
+                                subjectId=MergedDataSet$subjectId),mean);
 
 # Export tidyData set 
 write.table(tidyData, './FinalTidyData.txt',row.names=FALSE,sep='\t')

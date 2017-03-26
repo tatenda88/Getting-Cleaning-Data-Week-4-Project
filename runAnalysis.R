@@ -15,10 +15,10 @@
 ###### 1. Merge the training and the test sets to create one data set.
 setwd('C:/Users/rjongstr/Desktop/Data Course/Getting & Cleaning Data/Week 4/project/UCI HAR Dataset');
 
-# Import training data from files & Name columns 
+# Import training data from files & Name the columns 
 features <- read.table('./features.txt',header=FALSE);
-activityType <- read.table('./activity_labels.txt',header=FALSE); 
-        colnames(activityType) <- c('activityId','activityType');
+activityLabels <- read.table('./activity_labels.txt',header=FALSE); 
+        colnames(activityLabels) <- c("activityId","activityType");
 subjectTrain <- read.table('./train/subject_train.txt',header=FALSE); 
         colnames(subjectTrain) <- "subjectId";
 xTrain <- read.table('./train/x_train.txt',header=FALSE); colnames(xTrain) <- 
@@ -59,8 +59,10 @@ MergedDataSet <- MergedDataSet[vector==TRUE];
 ###### 3. Use descriptive activity names to name the activities in the data set
 
 # Add in descriptive activity names to MergedDataSet & update columns vector
-MergedDataSet <- merge(MergedDataSet,activityType,by='activityId',all.x=TRUE);
-        columns <- colnames(MergedDataSet);
+MergedDataSet <- merge(MergedDataSet,activityLabels,by='activityId',all.x=TRUE);
+        MergedDataSet$activityId <-activityLabels[,2][match(MergedDataSet$activityId, activityLabels[,1])] 
+
+columns <- colnames(MergedDataSet);
 
 ###### 4. Appropriately label the data set with descriptive activity names.
 
@@ -89,14 +91,11 @@ colnames(MergedDataSet) <- columns;
 # Creates a new table removing the activityType column
 MergedDataActivityRemoved <- MergedDataSet[,names(MergedDataSet) != 'activityType'];
 
-# Averaging of each variable for each activity and each subject as Tidy Data
+# Averaging each activity and each subject as Tidy Data
 tidyData <- aggregate(MergedDataActivityRemoved[,names(MergedDataActivityRemoved) 
                 != c('activityId','subjectId')],by=list
                         (activityId=MergedDataActivityRemoved$activityId,
                                 subjectId = MergedDataActivityRemoved$subjectId),mean);
 
-# Including descriptive names in tidyData
-tidyData <- merge(tidyData,activityType,by='activityId',all.x=TRUE);
-
 # Export tidyData set 
-write.table(tidyData, './tidyData.txt',row.names=TRUE,sep='\t')
+write.table(tidyData, './FinalTidyData.txt',row.names=FALSE,sep='\t')
